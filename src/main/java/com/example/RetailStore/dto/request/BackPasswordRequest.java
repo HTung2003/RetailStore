@@ -1,0 +1,14 @@
+package com.example.RetailStore.dto.request;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class BackPasswordRequest {
+    String username;
+    String email;
+}
