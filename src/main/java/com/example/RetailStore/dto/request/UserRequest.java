@@ -33,6 +33,7 @@ public class UserRequest {
     @NotBlank(message = "ADDRESS_NOT_BLANK")
     String address;
 
+    @Builder.Default
     @NotNull(message = "ROLE_NOT_BLANK")
-    Role role;
+    Role role = Role.USER;
 }

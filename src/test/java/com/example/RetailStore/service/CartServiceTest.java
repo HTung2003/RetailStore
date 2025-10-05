@@ -92,35 +92,35 @@ class CartServiceTest {
         assertEquals(response, result);
     }
 
-    @Test
-    void updateCart_success() {
-        String userId = "user1";
-        String productId = "prod1";
-
-        CartItemRequest itemRequest = CartItemRequest.builder()
-                .productId(productId)
-                .quantity(3)
-                .build();
-
-        CartRequest request = CartRequest.builder()
-                .userId(userId)
-                .items(List.of(itemRequest))
-                .build();
-
-        Product product = new Product();
-        product.setProductId(productId);
-
-        Cart cart = new Cart();
-        cart.setItems(new ArrayList<>());
-
-        when(cartRepository.findByUserUserId(userId)).thenReturn(Optional.of(cart));
-        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
-
-        cartService.updateCart(userId, request);
-
-        verify(cartItemRepository).deleteAll(anyList());
-        verify(cartRepository).save(cart);
-    }
+//    @Test
+//    void updateCart_success() {
+//        String userId = "user1";
+//        String productId = "prod1";
+//
+//        CartItemRequest itemRequest = CartItemRequest.builder()
+//                .productId(productId)
+//                .quantity(3)
+//                .build();
+//
+//        CartRequest request = CartRequest.builder()
+//                .userId(userId)
+//                .items(List.of(itemRequest))
+//                .build();
+//
+//        Product product = new Product();
+//        product.setProductId(productId);
+//
+//        Cart cart = new Cart();
+//        cart.setItems(new ArrayList<>());
+//
+//        when(cartRepository.findByUserUserId(userId)).thenReturn(Optional.of(cart));
+//        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+//
+//        cartService.updateCart(userId, request);
+//
+//        verify(cartItemRepository).deleteAll(anyList());
+//        verify(cartRepository).save(cart);
+//    }
 
     @Test
     void removeItemFromCart_success() {

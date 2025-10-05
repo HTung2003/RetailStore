@@ -3,6 +3,7 @@ package com.example.RetailStore.service;
 
 import com.example.RetailStore.dto.request.CartItemRequest;
 import com.example.RetailStore.dto.request.CartRequest;
+import com.example.RetailStore.dto.request.UpdateCartRequest;
 import com.example.RetailStore.dto.response.CartResponse;
 import com.example.RetailStore.entity.Cart;
 import com.example.RetailStore.entity.CartItem;
@@ -20,7 +21,6 @@ import lombok.experimental.FieldDefaults;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,32 +36,28 @@ public class CartService {
     ModelMapper modelMapper;
 
     public void createCart(CartRequest cartRequest) {
-
-
         User user = userRepository.findById(cartRequest.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         Cart cart = new Cart();
         cart.setUser(user);
-        cart = cartRepository.save(cart);
-
-        List<CartItem> cartItems = new ArrayList<>();
+        cartRepository.save(cart); // Lúc này cart đã có id để liên kết với CartItem
 
         for (CartItemRequest itemReq : cartRequest.getItems()) {
             Product product = productRepository.findById(itemReq.getProductId())
                     .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
             CartItem item = new CartItem();
-            item.setCart(cart);
+            item.setCart(cart); // thiết lập mối quan hệ 2 chiều
             item.setProduct(product);
             item.setQuantity(itemReq.getQuantity());
-            cartItems.add(item);
+
+            cart.getItems().add(item); // ✅ Thêm vào collection hiện có thay vì setItems()
         }
 
-        cart.setItems(cartItems);
-
-        cartRepository.save(cart);
+        cartRepository.save(cart); // Lưu lại cart cùng các items
     }
+
 
     public CartResponse getCartByUserId(String userId) {
         Cart cart = cartRepository.findByUserUserId(userId)
@@ -69,7 +65,7 @@ public class CartService {
         return modelMapper.map(cart, CartResponse.class);
     }
 
-    public void updateCart(String userId, CartRequest request) {
+    public void updateCart(String userId, UpdateCartRequest request) {
         Cart cart = cartRepository.findByUserUserId(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.CART_NOT_FOUND));
 

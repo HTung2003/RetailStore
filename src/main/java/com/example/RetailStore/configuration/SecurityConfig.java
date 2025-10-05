@@ -20,7 +20,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/users", "/auth/login", "/auth/introspect", "/auth/logout", "/auth/refresh","/users/backPass"
+            "/users", "/auth/login", "/auth/introspect", "/auth/logout", "/auth/refresh","/users/reset-password"
     };
     private static final String[] SWAGGER_WHITELIST = {
             "/v3/api-docs/**",         // JSON spec

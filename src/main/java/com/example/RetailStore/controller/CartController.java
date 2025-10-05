@@ -2,6 +2,7 @@ package com.example.RetailStore.controller;
 
 
 import com.example.RetailStore.dto.request.CartRequest;
+import com.example.RetailStore.dto.request.UpdateCartRequest;
 import com.example.RetailStore.dto.response.ApiResponse;
 import com.example.RetailStore.dto.response.CartResponse;
 import com.example.RetailStore.service.CartService;
@@ -41,7 +42,7 @@ public class CartController {
 
     // Cập nhật giỏ hàng của user
     @PutMapping("/{userId}")
-    public ApiResponse<String> updateCart(@PathVariable String userId, @RequestBody @Valid CartRequest request) {
+    public ApiResponse<String> updateCart(@PathVariable String userId, @RequestBody @Valid UpdateCartRequest request) {
         cartService.updateCart(userId, request);
         return ApiResponse.<String>builder()
                 .data("Cart updated successfully")

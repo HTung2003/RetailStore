@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,7 +33,7 @@ public class UserController {
                 .build();
     }
 
-    @GetMapping("/{user_id}")
+    @GetMapping("/find-user-by-id/{user_id}")
     ApiResponse<UserResponse> getUser(@PathVariable String user_id) {
         return ApiResponse.<UserResponse>builder()
                 .data(userService.getUserbyId(user_id))
@@ -62,11 +63,17 @@ public class UserController {
                 .build();
     }
 
-    @PostMapping("/back-password")
+    @PostMapping("/reset-password")
     ApiResponse<String> backPass(@RequestBody BackPasswordRequest request) {
-        String pass = userService.backPassword(request);
+        boolean result = userService.resetPassword(request);
+        String inform="";
+        if (result) {
+            inform = "Mật khẩu mới đã được gửi tới email của bạn.";
+        } else {
+            inform ="Không tìm thấy người dùng với username hoặc email.";
+        }
         return ApiResponse.<String>builder()
-                .data("new password :"+pass)
+                .data(inform)
                 .build();
     }
 
@@ -76,5 +83,15 @@ public class UserController {
         return ApiResponse.<String>builder()
                 .data("User has been update password")
                 .build();
+    }
+
+    @GetMapping("/search")
+    ApiResponse<Page<UserResponse>> searchUser(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize) {
+            return ApiResponse.<Page<UserResponse>>builder()
+                    .data(userService.searchUsers(keyword, pageNo, pageSize))
+                    .build();
     }
 }

@@ -14,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,8 +24,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +38,7 @@ public class UserService {
     PasswordEncoder passwordEncoder;
     UserRepository userRepository;
     ModelMapper modelMapper;
+    EmailService emailService;
 
     public void createUser(UserRequest userRequest) {
 
@@ -41,11 +47,13 @@ public class UserService {
         }
 
         User user = modelMapper.map(userRequest, User.class);
-        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+        if (!userRequest.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+        }
         userRepository.save(user);
     }
 
-    @PostAuthorize("returnObject.username=authentication.name")
+    @PreAuthorize("#userRequest.username == authentication.name")
     public void updateUser(String user_id,UserRequest userRequest) {
         User user =userRepository.findById(user_id).orElseThrow(
                 ()-> new AppException(ErrorCode.USER_NOT_EXISTED)
@@ -90,16 +98,31 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    public String backPassword(BackPasswordRequest request) {
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(()->new AppException(ErrorCode.USER_NOT_EXISTED));
-        if(!user.getEmail().equals(request.getEmail())){
-            throw new AppException(ErrorCode.EMAIL_NOT_EXISTED);
+    public boolean resetPassword(BackPasswordRequest  request) {
+
+        Optional<User> optionalUser = userRepository.findByUsernameAndEmail(request.getUsername(), request.getEmail());
+
+        if(!Optional.empty().isEmpty()){
+            throw new AppException(ErrorCode.USER_NOT_EXISTED);
         }
-        String randomString = generateRandomString(8);
-        user.setPassword(passwordEncoder.encode(randomString));
-        userRepository.save(user);
-        return randomString;
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+
+            String newPassword = generateRandomString(8);
+            try {
+                String subject = "Yêu cầu lấy lại mật khẩu";
+                String content = String.format("Mật khẩu mới của bạn là: <b>%s</b>", newPassword);
+                emailService.sendEmail(user.getEmail(), subject, content);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            } finally {
+                user.setPassword(passwordEncoder.encode(newPassword));
+                userRepository.save(user);
+                return true;
+            }
+        }
+        return false;
     }
 
     public static String generateRandomString(int length) {
@@ -123,6 +146,14 @@ public class UserService {
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public Page<UserResponse> searchUsers(String keyword, int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<User> userPage = userRepository.searchByUsernameOrEmail(keyword, pageable);
+
+        return userPage.map(user -> modelMapper.map(user, UserResponse.class));
     }
 
 }
