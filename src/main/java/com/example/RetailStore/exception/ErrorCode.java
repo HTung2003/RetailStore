@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatusCode;
 public enum ErrorCode {
     UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
     UNAUTHORIZED(403, "You do not have permission", HttpStatus.FORBIDDEN),
-    UNAUTHENTICATED(403, "Unauthenticated", HttpStatus.UNAUTHORIZED),
+    UNAUTHENTICATED(401, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     INVALID_KEY(9998, "Uncategorized error", HttpStatus.BAD_REQUEST),
     USERNAME_INVALID(1001, "Username must be at least {min} characters", HttpStatus.BAD_REQUEST),
     USERNAME_NOT_BLANK(1002, "Username is blank", HttpStatus.BAD_REQUEST),

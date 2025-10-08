@@ -22,12 +22,6 @@ public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {
             "/users", "/auth/login", "/auth/introspect", "/auth/logout", "/auth/refresh","/users/reset-password"
     };
-    private static final String[] SWAGGER_WHITELIST = {
-            "/v3/api-docs/**",         // JSON spec
-            "/swagger-ui.html",        // UI entry point legacy
-            "/swagger-ui/**",          // UI static resources
-            "/webjars/**"              // nếu dùng webjars
-    };
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -40,9 +34,14 @@ public class SecurityConfig {
         http.authorizeHttpRequests(
                 auth->auth.requestMatchers(PUBLIC_ENDPOINTS)
                         .permitAll()
-                        .requestMatchers(SWAGGER_WHITELIST).permitAll()
+                        // Swagger/OpenAPI endpoints - public
+                        .requestMatchers("/swagger-ui.html").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/api-docs/**").permitAll()
                         .anyRequest()
                         .authenticated());
+
         http.oauth2ResourceServer(oauth2->oauth2.jwt(jwtConfigurer -> jwtConfigurer
                         .decoder(customJwtDecoder)
                         .jwtAuthenticationConverter(jwtAuthenticationConverter()))
