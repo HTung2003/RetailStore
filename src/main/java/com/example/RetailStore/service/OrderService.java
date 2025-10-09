@@ -3,6 +3,7 @@ package com.example.RetailStore.service;
 
 import com.example.RetailStore.dto.request.OrderRequest;
 import com.example.RetailStore.dto.response.OrderResponse;
+import com.example.RetailStore.dto.response.ProductResponse;
 import com.example.RetailStore.entity.Order;
 import com.example.RetailStore.entity.OrderItem;
 import com.example.RetailStore.entity.Product;
@@ -18,6 +19,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 
@@ -88,4 +92,10 @@ public class OrderService {
         orderRepository.delete(order);
     }
 
+    public Page<OrderResponse> searchOrder(int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Order> orders = orderRepository.searchOrder(pageable);
+
+        return orders.map(order -> modelMapper.map(order, OrderResponse.class));
+    }
 }

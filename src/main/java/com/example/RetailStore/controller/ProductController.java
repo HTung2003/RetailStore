@@ -3,12 +3,14 @@ package com.example.RetailStore.controller;
 import com.example.RetailStore.dto.request.ProductRequest;
 import com.example.RetailStore.dto.response.ApiResponse;
 import com.example.RetailStore.dto.response.ProductResponse;
+import com.example.RetailStore.dto.response.UserResponse;
 import com.example.RetailStore.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -63,6 +65,16 @@ public class ProductController {
         productService.deleteProduct(productId);
         return ApiResponse.<String>builder()
                 .data("Product deleted successfully")
+                .build();
+    }
+
+    @GetMapping("/search")
+    ApiResponse<Page<ProductResponse>> searchUser(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize) {
+        return ApiResponse.<Page<ProductResponse>>builder()
+                .data(productService.searchProduct(keyword, pageNo, pageSize))
                 .build();
     }
 }

@@ -3,7 +3,9 @@ package com.example.RetailStore.service;
 
 import com.example.RetailStore.dto.request.ProductRequest;
 import com.example.RetailStore.dto.response.ProductResponse;
+import com.example.RetailStore.dto.response.UserResponse;
 import com.example.RetailStore.entity.Product;
+import com.example.RetailStore.entity.User;
 import com.example.RetailStore.exception.AppException;
 import com.example.RetailStore.exception.ErrorCode;
 import com.example.RetailStore.repository.ProductRepository;
@@ -11,6 +13,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -59,5 +64,12 @@ public class ProductService {
                 () -> new AppException(ErrorCode.PRODUCT_NOT_FOUND)
         );
         productRepository.delete(product);
+    }
+
+    public Page<ProductResponse> searchProduct(String keyword, int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Product> products = productRepository.searchByName(keyword, pageable);
+
+        return products.map(product -> modelMapper.map(product, ProductResponse.class));
     }
 }
