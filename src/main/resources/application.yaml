@@ -15,8 +15,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username:      # 👈 Gmail gửi đi
-    password:       # 👈 App Password (16 ký tự)
+    username: # 👈 Gmail gửi đi
+    password: # 👈 App Password (16 ký tự)
     properties:
       mail:
         smtp:
@@ -28,6 +28,7 @@ jwt:
   signerKey: "B8ByAXlvIid7WdrcgVkbvWw9tKkbZ52dvqb9J4KIuQNrdDYrhcLKBf6wEe5mWeTJ"
   valid-duration: 3600 # in second
   refreshable-duration: 36000 # in seconds
+<<<<<<< Updated upstream
 
 logging:
   level:
@@ -36,3 +37,5 @@ logging:
 
 
 
+=======
+>>>>>>> Stashed changes

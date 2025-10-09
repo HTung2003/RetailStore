@@ -1,4 +1,3 @@
-
 services:
   db:
     image: postgres:15
@@ -10,6 +9,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
       POSTGRES_DB: retail
+      TZ: Asia/Ho_Chi_Minh # ✅ Fix timezone
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
