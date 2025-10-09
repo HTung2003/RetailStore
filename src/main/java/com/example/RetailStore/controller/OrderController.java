@@ -4,6 +4,7 @@ import com.example.RetailStore.dto.request.OrderRequest;
 import com.example.RetailStore.dto.request.UpdateOrderStatusRequest;
 import com.example.RetailStore.dto.response.ApiResponse;
 import com.example.RetailStore.dto.response.OrderResponse;
+import com.example.RetailStore.dto.response.ProductResponse;
 import com.example.RetailStore.enums.OrderStatus;
 import com.example.RetailStore.service.OrderService;
 import jakarta.validation.Valid;
@@ -11,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -64,6 +66,15 @@ public class OrderController {
         orderService.deleteOrder(orderId);
         return ApiResponse.<String>builder()
                 .data("Order deleted successfully")
+                .build();
+    }
+
+    @GetMapping("/search")
+    ApiResponse<Page<OrderResponse>> searchUser(
+            @RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize) {
+        return ApiResponse.<Page<OrderResponse>>builder()
+                .data(orderService.searchOrder(pageNo, pageSize))
                 .build();
     }
 }

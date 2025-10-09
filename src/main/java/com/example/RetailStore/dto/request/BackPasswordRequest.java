@@ -1,5 +1,6 @@
 package com.example.RetailStore.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,6 +16,7 @@ public class BackPasswordRequest {
     @NotBlank(message = "USER_NOT_BLANK")
     String username;
 
+    @Schema(description = "email users", example = "yasuo@gmail.com")
     @Email(message = "EMAIL_INVALID")
     @NotBlank(message = "EMAIL_NOT_BLANK")
     String email;
