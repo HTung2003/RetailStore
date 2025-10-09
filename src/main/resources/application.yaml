@@ -28,14 +28,8 @@ jwt:
   signerKey: "B8ByAXlvIid7WdrcgVkbvWw9tKkbZ52dvqb9J4KIuQNrdDYrhcLKBf6wEe5mWeTJ"
   valid-duration: 3600 # in second
   refreshable-duration: 36000 # in seconds
-<<<<<<< Updated upstream
 
 logging:
   level:
     org.springframework.security: DEBUG
 
-
-
-
-=======
->>>>>>> Stashed changes
