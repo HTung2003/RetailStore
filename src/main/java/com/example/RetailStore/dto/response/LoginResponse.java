@@ -11,4 +11,6 @@ import lombok.experimental.FieldDefaults;
 public class LoginResponse {
     String token;
     boolean success;
+
+    UserResponse userResponse;
 }

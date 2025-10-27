@@ -3,9 +3,7 @@ package com.example.RetailStore.service;
 
 import com.example.RetailStore.dto.request.ProductRequest;
 import com.example.RetailStore.dto.response.ProductResponse;
-import com.example.RetailStore.dto.response.UserResponse;
 import com.example.RetailStore.entity.Product;
-import com.example.RetailStore.entity.User;
 import com.example.RetailStore.exception.AppException;
 import com.example.RetailStore.exception.ErrorCode;
 import com.example.RetailStore.repository.ProductRepository;
