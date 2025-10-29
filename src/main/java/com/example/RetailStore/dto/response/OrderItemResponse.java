@@ -9,8 +9,5 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 public class OrderItemResponse {
     private String orderItemId;
-    private String productId;
-    private String productName;
-    private Integer quantity;
-    private Double price;
+    private ProductItemResponse product;
 }
