@@ -12,6 +12,5 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CartResponse {
     private String cartId;
-    private String userId;
     private List<CartItemResponse> items;
 }

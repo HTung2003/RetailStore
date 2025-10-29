@@ -69,9 +69,6 @@ public class CartService {
         Cart cart = cartRepository.findByUserUserId(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.CART_NOT_FOUND));
 
-        // Xoá các item cũ
-        cartItemRepository.deleteAll(cart.getItems());
-        cart.getItems().clear();
 
         // Thêm các item mới
         List<CartItem> newItems = request.getItems().stream().map(itemReq -> {

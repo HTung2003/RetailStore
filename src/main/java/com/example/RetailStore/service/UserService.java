@@ -5,9 +5,11 @@ import com.example.RetailStore.dto.request.BackPasswordRequest;
 import com.example.RetailStore.dto.request.UpdatePasswordRequest;
 import com.example.RetailStore.dto.request.UserRequest;
 import com.example.RetailStore.dto.response.UserResponse;
+import com.example.RetailStore.entity.Cart;
 import com.example.RetailStore.entity.User;
 import com.example.RetailStore.exception.AppException;
 import com.example.RetailStore.exception.ErrorCode;
+import com.example.RetailStore.repository.CartRepository;
 import com.example.RetailStore.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +41,7 @@ public class UserService {
     UserRepository userRepository;
     ModelMapper modelMapper;
     EmailService emailService;
+    CartRepository cartRepository;
 
     public void createUser(UserRequest userRequest) {
 
@@ -51,6 +54,9 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         }
         userRepository.save(user);
+        Cart cart = new Cart();
+        cart.setUser(user);
+        cartRepository.save(cart);
     }
 
     @PreAuthorize("#userRequest.username == authentication.name")
