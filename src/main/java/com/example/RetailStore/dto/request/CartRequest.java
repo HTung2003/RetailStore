@@ -18,5 +18,5 @@ public class CartRequest {
 
     @Schema(description = "List item")
     @NotEmpty
-    private List<CartItemRequest> items;
+    private CartItemRequest items;
 }

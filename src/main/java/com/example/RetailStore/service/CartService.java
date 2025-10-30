@@ -1,6 +1,7 @@
 package com.example.RetailStore.service;
 
 
+import com.example.RetailStore.dto.request.AddQuantityRequest;
 import com.example.RetailStore.dto.request.CartItemRequest;
 import com.example.RetailStore.dto.request.CartRequest;
 import com.example.RetailStore.dto.request.UpdateCartRequest;
@@ -15,13 +16,16 @@ import com.example.RetailStore.repository.CartItemRepository;
 import com.example.RetailStore.repository.CartRepository;
 import com.example.RetailStore.repository.ProductRepository;
 import com.example.RetailStore.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,29 +39,44 @@ public class CartService {
     CartItemRepository cartItemRepository;
     ModelMapper modelMapper;
 
+    @Transactional
     public void createCart(CartRequest cartRequest) {
         User user = userRepository.findById(cartRequest.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        Cart cart = new Cart();
-        cart.setUser(user);
-        cartRepository.save(cart); // Lúc này cart đã có id để liên kết với CartItem
-
-        for (CartItemRequest itemReq : cartRequest.getItems()) {
-            Product product = productRepository.findById(itemReq.getProductId())
-                    .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-
-            CartItem item = new CartItem();
-            item.setCart(cart); // thiết lập mối quan hệ 2 chiều
-            item.setProduct(product);
-            item.setQuantity(itemReq.getQuantity());
-
-            cart.getItems().add(item); // ✅ Thêm vào collection hiện có thay vì setItems()
+        Cart cart = cartRepository.findByUserUserId(cartRequest.getUserId()).orElseThrow(
+                () -> new AppException(ErrorCode.CART_NOT_FOUND)
+        );
+        Product product = productRepository.findById(cartRequest.getItems().getProductId()).orElseThrow(
+                () -> new AppException(ErrorCode.PRODUCT_NOT_FOUND)
+        );
+        CartItem cartItemOld = cartItemRepository.findCartItem(cartRequest.getItems().getProductId()).orElseThrow(
+                () -> new AppException(ErrorCode.CART_ITEM_NOT_FOUND)
+        );
+        List<CartItem> cartItems = new ArrayList<>();
+        if (Objects.nonNull(cartItemOld)) {
+            cartItemOld.setQuantity(cartItemOld.getQuantity() + 1);
+            cartItems.add(cartItemOld);
+        } else {
+            CartItem cartItem = new CartItem();
+            cartItem.setCart(cart);
+            cartItem.setQuantity(cartRequest.getItems().getQuantity());
+            cartItem.setProduct(product);
+            cartItems.add(cartItem);
         }
 
+        cart.setItems(cartItems);
+        cart.setUser(user);
         cartRepository.save(cart); // Lưu lại cart cùng các items
     }
 
+    public void addQuantity(AddQuantityRequest request) {
+        CartItem cartItem = cartItemRepository.findById(request.getCartIemId()).orElseThrow(
+                () -> new AppException(ErrorCode.CART_ITEM_NOT_FOUND)
+        );
+        cartItem.setQuantity(request.getQuantity());
+        cartItemRepository.save(cartItem);
+    }
 
     public CartResponse getCartByUserId(String userId) {
         Cart cart = cartRepository.findByUserUserId(userId)
@@ -65,6 +84,7 @@ public class CartService {
         return modelMapper.map(cart, CartResponse.class);
     }
 
+    @Transactional
     public void updateCart(String userId, UpdateCartRequest request) {
         Cart cart = cartRepository.findByUserUserId(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.CART_NOT_FOUND));
@@ -85,6 +105,7 @@ public class CartService {
         cartRepository.save(cart);
     }
 
+    @Transactional
     public void removeItemFromCart(String userId, String productId) {
         Cart cart = cartRepository.findByUserUserId(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.CART_NOT_FOUND));
@@ -99,6 +120,7 @@ public class CartService {
         cartRepository.save(cart);
     }
 
+    @Transactional
     public void clearCart(String userId) {
         Cart cart = cartRepository.findByUserUserId(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.CART_NOT_FOUND));

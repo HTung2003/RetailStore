@@ -1,6 +1,7 @@
 package com.example.RetailStore.controller;
 
 
+import com.example.RetailStore.dto.request.AddQuantityRequest;
 import com.example.RetailStore.dto.request.CartRequest;
 import com.example.RetailStore.dto.request.UpdateCartRequest;
 import com.example.RetailStore.dto.response.ApiResponse;
@@ -64,6 +65,14 @@ public class CartController {
         cartService.clearCart(userId);
         return ApiResponse.<String>builder()
                 .data("Cart cleared successfully")
+                .build();
+    }
+
+    @PostMapping("/add-cart")
+    public ApiResponse<String> addCart(@RequestBody AddQuantityRequest request){
+        cartService.addQuantity(request);
+        return ApiResponse.<String>builder()
+                .data("Thêm thành công")
                 .build();
     }
 }
