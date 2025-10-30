@@ -25,7 +25,12 @@ import java.util.List;
 public class SecurityConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/users", "/auth/login", "/auth/introspect", "/auth/logout", "/auth/refresh", "/users/reset-password"
+            "/users",
+            "/auth/login",
+            "/auth/introspect",
+            "/auth/logout",
+            "/auth/refresh",
+            "/users/reset-password"
     };
 
     private static final String[] SWAGGER_WHITELIST = {
@@ -43,11 +48,10 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder(10);
     }
 
-    // ✅ Cấu hình CORS cho React frontend
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOrigins(List.of("http://localhost:5173")); // React FE
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
@@ -60,11 +64,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors() // ✅ Bật CORS
+            .cors()
             .and()
             .authorizeHttpRequests(auth -> auth
+                // ✅ Cho phép truy cập static files (ảnh, css, js, favicon)
+                .requestMatchers("/images/**", "/css/**", "/js/**", "/favicon.ico").permitAll()
+
+                // ✅ Các API công khai
                 .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                 .requestMatchers(SWAGGER_WHITELIST).permitAll()
+
+                // ✅ Các API còn lại yêu cầu xác thực
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2

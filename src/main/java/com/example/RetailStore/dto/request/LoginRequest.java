@@ -11,11 +11,11 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class LoginRequest {
-    @Schema(description = "user name of account", example = "tungst01")
+    @Schema(description = "user name of account", example = "tung1st2003")
     @NotNull
     String username;
 
-    @Schema(description = "pass word of account", example = "12345678")
+    @Schema(description = "pass word of account", example = "tung1032003")
     @NotNull
     String password;
 }
