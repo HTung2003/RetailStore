@@ -50,23 +50,19 @@ public class CartService {
         Product product = productRepository.findById(cartRequest.getItems().getProductId()).orElseThrow(
                 () -> new AppException(ErrorCode.PRODUCT_NOT_FOUND)
         );
-        CartItem cartItemOld = cartItemRepository.findCartItem(
-                cartRequest.getItems().getProductId(),
-                cartRequest.getUserId()).orElseThrow(
+        CartItem cartItemOld = cartItemRepository.findCartItem(cartRequest.getItems().getProductId()).orElseThrow(
                 () -> new AppException(ErrorCode.CART_ITEM_NOT_FOUND)
         );
         List<CartItem> cartItems = new ArrayList<>();
         if (Objects.nonNull(cartItemOld)) {
             cartItemOld.setQuantity(cartItemOld.getQuantity() + 1);
             cartItems.add(cartItemOld);
-            cartItemRepository.save(cartItemOld);
         } else {
             CartItem cartItem = new CartItem();
             cartItem.setCart(cart);
             cartItem.setQuantity(cartRequest.getItems().getQuantity());
             cartItem.setProduct(product);
             cartItems.add(cartItem);
-            cartItemRepository.save(cartItem);
         }
 
         cart.setItems(cartItems);
@@ -89,38 +85,24 @@ public class CartService {
     }
 
     @Transactional
-    public void updateCart(String userId, UpdateCartRequest cartRequest) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+    public void updateCart(String userId, UpdateCartRequest request) {
+        Cart cart = cartRepository.findByUserUserId(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.CART_NOT_FOUND));
 
-        Cart cart = cartRepository.findByUserUserId(userId).orElseThrow(
-                () -> new AppException(ErrorCode.CART_NOT_FOUND)
-        );
-        Product product = productRepository.findById(cartRequest.getItems().getProductId()).orElseThrow(
-                () -> new AppException(ErrorCode.PRODUCT_NOT_FOUND)
-        );
-        CartItem cartItemOld = cartItemRepository.findCartItem(
-                cartRequest.getItems().getProductId(),
-                userId).orElseThrow(
-                () -> new AppException(ErrorCode.CART_ITEM_NOT_FOUND)
-        );
-        List<CartItem> cartItems = new ArrayList<>();
-        if (Objects.nonNull(cartItemOld)) {
-            cartItemOld.setQuantity(cartItemOld.getQuantity() + 1);
-            cartItems.add(cartItemOld);
-            cartItemRepository.save(cartItemOld);
-        } else {
-            CartItem cartItem = new CartItem();
-            cartItem.setCart(cart);
-            cartItem.setQuantity(cartRequest.getItems().getQuantity());
-            cartItem.setProduct(product);
-            cartItems.add(cartItem);
-            cartItemRepository.save(cartItem);
-        }
 
-        cart.setItems(cartItems);
-        cart.setUser(user);
-        cartRepository.save(cart); // Lưu lại cart cùng các items
+        // Thêm các item mới
+        List<CartItem> newItems = request.getItems().stream().map(itemReq -> {
+            Product product = productRepository.findById(itemReq.getProductId())
+                    .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+            CartItem item = new CartItem();
+            item.setProduct(product);
+            item.setQuantity(itemReq.getQuantity());
+            item.setCart(cart);
+            return item;
+        }).collect(Collectors.toList());
+
+        cart.getItems().addAll(newItems);
+        cartRepository.save(cart);
     }
 
     @Transactional
