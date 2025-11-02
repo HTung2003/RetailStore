@@ -57,12 +57,14 @@ public class CartService {
         if (Objects.nonNull(cartItemOld)) {
             cartItemOld.setQuantity(cartItemOld.getQuantity() + 1);
             cartItems.add(cartItemOld);
+            cartItemRepository.save(cartItemOld);
         } else {
             CartItem cartItem = new CartItem();
             cartItem.setCart(cart);
             cartItem.setQuantity(cartRequest.getItems().getQuantity());
             cartItem.setProduct(product);
             cartItems.add(cartItem);
+            cartItemRepository.save(cartItem);
         }
 
         cart.setItems(cartItems);
