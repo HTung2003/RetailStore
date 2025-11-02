@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
         log.error("exception", e);
 
         ApiResponse apiResponse = new ApiResponse();
-        apiResponse.setMessage(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage());
+        apiResponse.setMessage(e.getMessage());
         apiResponse.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
 
         return ResponseEntity.badRequest().body(apiResponse);

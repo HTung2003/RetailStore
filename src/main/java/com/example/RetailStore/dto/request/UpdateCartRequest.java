@@ -17,5 +17,5 @@ public class UpdateCartRequest {
 
     @NotNull
     @Size(min = 1, message = "Cart must have at least one item")
-    List<@Valid CartItemRequest> items;
+    CartItemRequest items;
 }
