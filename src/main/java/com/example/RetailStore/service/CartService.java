@@ -50,7 +50,9 @@ public class CartService {
         Product product = productRepository.findById(cartRequest.getItems().getProductId()).orElseThrow(
                 () -> new AppException(ErrorCode.PRODUCT_NOT_FOUND)
         );
-        CartItem cartItemOld = cartItemRepository.findCartItem(cartRequest.getItems().getProductId()).orElseThrow(
+        CartItem cartItemOld = cartItemRepository.findCartItem(
+                cartRequest.getItems().getProductId(),
+                cartRequest.getUserId()).orElseThrow(
                 () -> new AppException(ErrorCode.CART_ITEM_NOT_FOUND)
         );
         List<CartItem> cartItems = new ArrayList<>();
