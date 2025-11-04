@@ -3,18 +3,13 @@ package com.example.RetailStore.service;
 
 import com.example.RetailStore.dto.request.OrderRequest;
 import com.example.RetailStore.dto.response.OrderResponse;
-import com.example.RetailStore.dto.response.ProductResponse;
-import com.example.RetailStore.entity.Order;
-import com.example.RetailStore.entity.OrderItem;
-import com.example.RetailStore.entity.Product;
-import com.example.RetailStore.entity.User;
+import com.example.RetailStore.dto.response.ProfitManagementResponse;
+import com.example.RetailStore.dto.response.TotalAmountResponse;
+import com.example.RetailStore.entity.*;
 import com.example.RetailStore.enums.OrderStatus;
 import com.example.RetailStore.exception.AppException;
 import com.example.RetailStore.exception.ErrorCode;
-import com.example.RetailStore.repository.OrderItemRepository;
-import com.example.RetailStore.repository.OrderRepository;
-import com.example.RetailStore.repository.ProductRepository;
-import com.example.RetailStore.repository.UserRepository;
+import com.example.RetailStore.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -22,11 +17,14 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.stereotype.Service;
 
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,6 +36,7 @@ public class OrderService {
     UserRepository userRepository;
     ProductRepository productRepository;
     ModelMapper modelMapper;
+    ProfitManagementRepository profitManagermentRepository;
 
     public void createOrder(OrderRequest request) {
         User user = userRepository.findById(request.getUserId())
@@ -84,6 +83,18 @@ public class OrderService {
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
         order.setStatus(status);
         orderRepository.save(order);
+        double totalAmount = 0;
+        if (Objects.equals(status, OrderStatus.DELIVERED)) {
+            List<OrderItem> orderItems = order.getOrderItems();
+            for (OrderItem orderItem : orderItems) {
+                totalAmount = totalAmount + (orderItem.getProduct().getPrice() * orderItem.getQuantity());
+            }
+        }
+        ProfitManagement profitManagerment = new ProfitManagement();
+        profitManagerment.setCreatedDate(LocalDateTime.now());
+        profitManagerment.setOrder(order);
+        profitManagerment.setTotalAmount(BigDecimal.valueOf(totalAmount));
+        profitManagermentRepository.save(profitManagerment);
     }
 
     public void deleteOrder(String orderId) {
@@ -97,5 +108,19 @@ public class OrderService {
         Page<Order> orders = orderRepository.searchOrder(pageable);
 
         return orders.map(order -> modelMapper.map(order, OrderResponse.class));
+    }
+
+    @PostAuthorize("hasRole('ADMIN')")
+    public Page<ProfitManagementResponse> searchProfitManagement(String username, int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<ProfitManagement> profitManagements = profitManagermentRepository.searchByUserName(username,pageable);
+
+        return profitManagements.map(profitManagement -> modelMapper.map(profitManagement, ProfitManagementResponse.class));
+    }
+
+    public TotalAmountResponse getTotalAmount(){
+        return TotalAmountResponse.builder()
+                .totalAmountAllPayments(profitManagermentRepository.getTotalAmountAllPayments())
+                .build();
     }
 }

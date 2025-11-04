@@ -2,9 +2,7 @@ package com.example.RetailStore.controller;
 
 import com.example.RetailStore.dto.request.OrderRequest;
 import com.example.RetailStore.dto.request.UpdateOrderStatusRequest;
-import com.example.RetailStore.dto.response.ApiResponse;
-import com.example.RetailStore.dto.response.OrderResponse;
-import com.example.RetailStore.dto.response.ProductResponse;
+import com.example.RetailStore.dto.response.*;
 import com.example.RetailStore.enums.OrderStatus;
 import com.example.RetailStore.service.OrderService;
 import jakarta.validation.Valid;
@@ -75,6 +73,24 @@ public class OrderController {
             @RequestParam(defaultValue = "10") int pageSize) {
         return ApiResponse.<Page<OrderResponse>>builder()
                 .data(orderService.searchOrder(pageNo, pageSize))
+                .build();
+    }
+
+    @GetMapping("/profit")
+    ApiResponse<Page<ProfitManagementResponse>> searchProfit(
+            @RequestParam(required = false) String username,
+            @RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize
+    ) {
+        return ApiResponse.<Page<ProfitManagementResponse>>builder()
+                .data(orderService.searchProfitManagement(username, pageNo, pageSize))
+                .build();
+    }
+
+    @GetMapping("total-amount")
+    ApiResponse<TotalAmountResponse> getTotalAmount() {
+        return ApiResponse.<TotalAmountResponse>builder()
+                .data(orderService.getTotalAmount())
                 .build();
     }
 }

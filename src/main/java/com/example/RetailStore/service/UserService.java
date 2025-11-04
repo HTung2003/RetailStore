@@ -59,10 +59,10 @@ public class UserService {
         cartRepository.save(cart);
     }
 
-    @PreAuthorize("#userRequest.username == authentication.name")
-    public void updateUser(String user_id,UserRequest userRequest) {
-        User user =userRepository.findById(user_id).orElseThrow(
-                ()-> new AppException(ErrorCode.USER_NOT_EXISTED)
+    @PreAuthorize("#userRequest.username == authentication.name or hasRole('ADMIN')")
+    public void updateUser(String user_id, UserRequest userRequest) {
+        User user = userRepository.findById(user_id).orElseThrow(
+                () -> new AppException(ErrorCode.USER_NOT_EXISTED)
         );
 
         modelMapper.map(userRequest, user);
@@ -98,6 +98,10 @@ public class UserService {
 
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteUser(String user_id) {
+        Cart cart = cartRepository.findByUserUserId(user_id).orElseThrow(
+                ()-> new AppException(ErrorCode.CART_NOT_FOUND)
+        );
+        cartRepository.delete(cart);
         User user = userRepository.findById(user_id).orElseThrow(
                 ()-> new AppException(ErrorCode.USER_NOT_EXISTED)
         );
