@@ -91,6 +91,11 @@ public class OrderService {
             for (OrderItem orderItem : orderItems) {
                 totalAmount = totalAmount + (orderItem.getProduct().getPrice() * orderItem.getQuantity());
             }
+            ProfitManagement profitManagerment = new ProfitManagement();
+            profitManagerment.setCreatedDate(LocalDateTime.now());
+            profitManagerment.setOrder(order);
+            profitManagerment.setTotalAmount(BigDecimal.valueOf(totalAmount));
+            profitManagermentRepository.save(profitManagerment);
         }
         if (Objects.equals(status, OrderStatus.RETURNED)) {
             ProfitManagement profitManagement = profitManagermentRepository.findByOrderId(orderId).orElseThrow(
@@ -98,11 +103,6 @@ public class OrderService {
             );
             profitManagermentRepository.delete(profitManagement);
         }
-        ProfitManagement profitManagerment = new ProfitManagement();
-        profitManagerment.setCreatedDate(LocalDateTime.now());
-        profitManagerment.setOrder(order);
-        profitManagerment.setTotalAmount(BigDecimal.valueOf(totalAmount));
-        profitManagermentRepository.save(profitManagerment);
     }
 
     public void deleteOrder(String orderId) {
