@@ -92,6 +92,12 @@ public class OrderService {
                 totalAmount = totalAmount + (orderItem.getProduct().getPrice() * orderItem.getQuantity());
             }
         }
+        if (Objects.equals(status, OrderStatus.RETURNED)) {
+            ProfitManagement profitManagement = profitManagermentRepository.findByOrderId(orderId).orElseThrow(
+                    () -> new AppException(ErrorCode.PROFIT_NOT_FOUND)
+            );
+            profitManagermentRepository.delete(profitManagement);
+        }
         ProfitManagement profitManagerment = new ProfitManagement();
         profitManagerment.setCreatedDate(LocalDateTime.now());
         profitManagerment.setOrder(order);
@@ -115,12 +121,12 @@ public class OrderService {
     @PostAuthorize("hasRole('ADMIN')")
     public Page<ProfitManagementResponse> searchProfitManagement(String username, int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<ProfitManagement> profitManagements = profitManagermentRepository.searchByUserName(username,pageable);
+        Page<ProfitManagement> profitManagements = profitManagermentRepository.searchByUserName(username, pageable);
 
         return profitManagements.map(profitManagement -> modelMapper.map(profitManagement, ProfitManagementResponse.class));
     }
 
-    public TotalAmountResponse getTotalAmount(){
+    public TotalAmountResponse getTotalAmount() {
         return TotalAmountResponse.builder()
                 .totalAmountAllPayments(profitManagermentRepository.getTotalAmountAllPayments())
                 .build();

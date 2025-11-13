@@ -29,13 +29,14 @@ public enum ErrorCode {
     CART_ITEM_NOT_FOUND(1016, "Cart item not found", HttpStatus.NOT_FOUND),
     ORDER_NOT_FOUND(1017, "Order not found", HttpStatus.NOT_FOUND),
     ORDER_ITEM_NOT_FOUND(1018, "Order item not found", HttpStatus.NOT_FOUND),
+    PROFIT_NOT_FOUND(1050, "profit not found", HttpStatus.NOT_FOUND),
 
+    ;
 
-;
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
-    this.code = code;
-    this.message = message;
-    this.statusCode = statusCode;
+        this.code = code;
+        this.message = message;
+        this.statusCode = statusCode;
     }
 
     private final int code;

@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 @Repository
 public interface ProfitManagementRepository extends JpaRepository<ProfitManagement, String> {
@@ -20,4 +21,9 @@ public interface ProfitManagementRepository extends JpaRepository<ProfitManageme
 
     @Query("SELECT SUM(p.totalAmount) FROM ProfitManagement p")
     BigDecimal getTotalAmountAllPayments();
+
+    @Query("""
+            select p from ProfitManagement p where p.order.orderId = :orderId
+            """)
+    Optional<ProfitManagement> findByOrderId(@Param("orderId") String orderId);
 }
