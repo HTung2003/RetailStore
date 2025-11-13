@@ -28,6 +28,8 @@ public class Order {
 
     LocalDateTime orderDate;
 
+    String code;
+
     String shippingAddress;
 
     OrderStatus status;

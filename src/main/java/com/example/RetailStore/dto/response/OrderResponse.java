@@ -13,9 +13,10 @@ import java.util.List;
 @NoArgsConstructor
 public class OrderResponse {
     private String orderId;
-    private String userId;
+    private UserInfo user;
     private LocalDateTime orderDate;
     private String shippingAddress;
     private OrderStatus status;
+    private String code;
     private List<OrderItemResponse> orderItems;
 }

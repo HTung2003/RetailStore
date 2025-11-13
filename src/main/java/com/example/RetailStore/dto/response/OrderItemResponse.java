@@ -10,4 +10,5 @@ import lombok.experimental.FieldDefaults;
 public class OrderItemResponse {
     private String orderItemId;
     private ProductItemResponse product;
+    private Integer quantity;
 }

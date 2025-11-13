@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,6 +45,7 @@ public class OrderService {
 
         Order order = new Order();
         order.setUser(user);
+        order.setCode(generateCode());
         order.setShippingAddress(request.getShippingAddress());
         order.setOrderDate(LocalDateTime.now());
         order.setStatus(OrderStatus.PENDING);
@@ -123,4 +125,18 @@ public class OrderService {
                 .totalAmountAllPayments(profitManagermentRepository.getTotalAmountAllPayments())
                 .build();
     }
+
+    public String generateCode() {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        Random random = new Random();
+        StringBuilder code = new StringBuilder(8);
+
+        for (int i = 0; i < 10; i++) {
+            code.append(characters.charAt(random.nextInt(characters.length())));
+        }
+
+        return code.toString();
+    }
+
+
 }
